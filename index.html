@@ -206,8 +206,7 @@ function renderResult(){
 
 /* === TAG RESULT === */
 function renderTagResult(){
-  /* AIPL 分层模型：基于阿里方法论，结合 Coach 品牌用户行为特征 */
-  var total=1263000;
+  /* AIPL 分层模型：人群当前所处阶段的分布，各阶段互斥 */
   var stages=[
     {s:"A",name:"Awareness",cn:"\u8BA4\u77E5",pct:46,cnt:581000,color:"#818CF8",colorLight:"#EEF2FF",colorDark:"#4F46E5",
       rule:"\u5E7F\u544A\u89E6\u8FBE/\u5185\u5BB9\u66DD\u5149\u22651\u6B21\uFF0C\u4F46\u672A\u4EA7\u751F\u70B9\u51FB\u3001\u641C\u7D22\u7B49\u4E3B\u52A8\u884C\u4E3A",
@@ -228,15 +227,15 @@ function renderTagResult(){
   ];
 
   var html='';
-  /* Header */
   html+='<div style="font-size:15px;font-weight:700;color:'+C.dark+';margin-bottom:2px;display:flex;align-items:center;gap:8px">\u{1F4CA} Coach\u54C1\u724C AIPL \u5206\u5C42\u6A21\u578B</div>';
   html+='<div style="font-size:10px;color:'+C.gray+';margin-bottom:14px">\u57FA\u4E8E\u963F\u91CCAIPL\u65B9\u6CD5\u8BBA \u00B7 \u7ED3\u5408Coach\u7528\u6237\u884C\u4E3A\u7279\u5F81\u9002\u914D \u00B7 \u5404\u9636\u6BB5\u4E92\u65A5</div>';
 
-  /* Overview card */
+  /* Overview: total + distribution bar */
   html+='<div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:12px;padding:16px 20px;color:white;margin-bottom:14px">';
   html+='<div style="display:flex;justify-content:space-between;align-items:center">';
   html+='<div><div style="font-size:11px;opacity:0.8">\u6A21\u578B\u8986\u76D6\u603B\u7528\u6237</div>';
-  html+='<div style="font-size:28px;font-weight:800;margin-top:2px">126.3<span style="font-size:14px;font-weight:400"> \u4E07</span></div></div>';
+  html+='<div style="font-size:28px;font-weight:800;margin-top:2px">126.3<span style="font-size:14px;font-weight:400"> \u4E07</span></div>';
+  html+='<div style="font-size:10px;opacity:0.7;margin-top:2px">\u6BCF\u4E2A\u7528\u6237\u4EC5\u5C5E\u4E8E\u5176\u4E2D\u4E00\u4E2A\u9636\u6BB5\uFF0C\u6309\u5F53\u524D\u4EA4\u4E92\u6DF1\u5EA6\u5224\u5B9A</div></div>';
   html+='<div style="display:flex;gap:16px">';
   for(var i=0;i<stages.length;i++){
     var st=stages[i];
@@ -244,43 +243,24 @@ function renderTagResult(){
     html+='<div style="font-size:10px;opacity:0.8">'+st.cn+'</div><div style="font-size:13px;font-weight:700">'+st.pct+'%</div></div>';
   }
   html+='</div></div>';
-  /* Mini funnel bar */
-  html+='<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:12px">';
+  /* Distribution bar */
+  html+='<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:12px">';
   for(var i=0;i<stages.length;i++) html+='<div style="width:'+stages[i].pct+'%;background:'+stages[i].color+'"></div>';
   html+='</div>';
   html+='<div style="display:flex;margin-top:4px">';
-  for(var i=0;i<stages.length;i++) html+='<div style="width:'+stages[i].pct+'%;text-align:center;font-size:9px;color:rgba(255,255,255,0.7)">'+stages[i].pct+'%</div>';
+  for(var i=0;i<stages.length;i++) html+='<div style="width:'+stages[i].pct+'%;text-align:center;font-size:9px;color:rgba(255,255,255,0.7)">'+stages[i].s+' '+stages[i].pct+'%</div>';
   html+='</div></div>';
 
-  /* Funnel visualization */
-  html+='<div style="background:white;border:1px solid '+C.grayBorder+';border-radius:10px;padding:14px;margin-bottom:14px">';
-  html+='<div style="font-size:12px;font-weight:700;color:'+C.dark+';margin-bottom:12px">\u{1F4C9} \u5206\u5C42\u6F0F\u6597\u5206\u5E03</div>';
-  var funnelWidths=[100,70,35,13];
-  for(var i=0;i<stages.length;i++){
-    var st=stages[i],w=funnelWidths[i];
-    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:'+(i<stages.length-1?'6':'0')+'px">';
-    html+='<div style="width:38px;font-size:11px;font-weight:700;color:'+st.colorDark+';text-align:right">'+st.s+'</div>';
-    html+='<div style="flex:1;position:relative"><div style="width:'+w+'%;height:28px;background:linear-gradient(90deg,'+st.color+','+st.color+'CC);border-radius:6px;display:flex;align-items:center;padding-left:10px;margin:0 auto;transition:width 0.5s">';
-    html+='<span style="font-size:11px;color:white;font-weight:600">'+(st.cnt/10000).toFixed(1)+'\u4E07 ('+st.pct+'%)</span></div></div>';
-    html+='</div>';
-    if(i<stages.length-1){
-      var rate=Math.round(stages[i+1].cnt/st.cnt*100);
-      html+='<div style="text-align:center;margin:2px 0 2px 48px;font-size:9px;color:'+C.gray+'">\u2193 \u8F6C\u5316\u7387 '+rate+'%</div>';
-    }
-  }
-  html+='</div>';
-
-  /* Stage detail cards */
-  html+='<div style="font-size:12px;font-weight:700;color:'+C.dark+';margin-bottom:8px">\u{1F50D} \u5404\u9636\u6BB5\u8BE6\u7EC6\u5B9A\u4E49</div>';
+  /* 4 stage cards - current state */
   for(var i=0;i<stages.length;i++){
     var st=stages[i];
     html+='<div style="background:'+st.colorLight+';border:1px solid '+st.color+'30;border-radius:10px;padding:14px;margin-bottom:'+(i<stages.length-1?'10':'0')+'px">';
-    /* Card header */
+    /* Header */
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
     html+='<div style="display:flex;align-items:center;gap:8px">';
     html+='<div style="width:32px;height:32px;border-radius:8px;background:'+st.color+';color:white;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">'+st.s+'</div>';
     html+='<div><div style="font-size:13px;font-weight:700;color:'+st.colorDark+'">'+st.name+' \u00B7 '+st.cn+'</div>';
-    html+='<div style="font-size:10px;color:'+C.gray+'">\u8986\u76D6 '+(st.cnt/10000).toFixed(1)+'\u4E07\u7528\u6237 \u00B7 \u5360\u6BD4 '+st.pct+'%</div></div></div>';
+    html+='<div style="font-size:10px;color:'+C.gray+'">\u5F53\u524D\u89C4\u6A21 '+(st.cnt/10000).toFixed(1)+'\u4E07\u7528\u6237 \u00B7 \u5360\u6BD4 '+st.pct+'%</div></div></div>';
     html+='<div style="background:'+st.color+';color:white;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600">'+(st.cnt/10000).toFixed(1)+'\u4E07</div></div>';
     /* Rule */
     html+='<div style="background:white;border-radius:8px;padding:10px 12px;margin-bottom:8px">';
@@ -299,23 +279,6 @@ function renderTagResult(){
     html+='<div style="flex:1;background:white;border-radius:8px;padding:8px 10px"><div style="font-size:10px;font-weight:600;color:'+st.colorDark+';margin-bottom:2px">\u{1F4CF} \u6838\u5FC3KPI</div><div style="font-size:10px;color:'+C.dark+'">'+esc(st.kpi)+'</div></div>';
     html+='</div></div>';
   }
-
-  /* Stage transition summary */
-  html+='<div style="background:linear-gradient(135deg,#F8FAFC,#EFF6FF);border-radius:10px;padding:14px;border:1px solid '+C.pri+'20;margin-top:12px">';
-  html+='<div style="font-size:12px;font-weight:700;color:'+C.dark+';margin-bottom:8px">\u{1F504} \u9636\u6BB5\u6D41\u8F6C\u8DEF\u5F84</div>';
-  html+='<div style="display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap">';
-  for(var i=0;i<stages.length;i++){
-    var st=stages[i];
-    html+='<div style="text-align:center"><div style="background:'+st.color+';color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700">'+st.s+'</div>';
-    html+='<div style="font-size:9px;color:'+C.gray+';margin-top:2px">'+(st.cnt/10000).toFixed(1)+'\u4E07</div></div>';
-    if(i<stages.length-1){
-      var rate=Math.round(stages[i+1].cnt/stages[i].cnt*100);
-      html+='<div style="display:flex;flex-direction:column;align-items:center;margin:0 6px"><div style="font-size:16px;color:'+C.gray+'">\u2192</div><div style="font-size:9px;color:'+stages[i+1].color+';font-weight:600">'+rate+'%</div></div>';
-    }
-  }
-  html+='</div>';
-  html+='<div style="font-size:10px;color:'+C.gray+';text-align:center;margin-top:8px">\u6BCF\u4E2A\u7528\u6237\u4EC5\u5C5E\u4E8E\u5176\u4E2D\u4E00\u4E2A\u9636\u6BB5\uFF0C\u6309\u6700\u9AD8\u4EA4\u4E92\u6DF1\u5EA6\u5224\u5B9A\uFF0C\u5404\u9636\u6BB5\u4E25\u683C\u4E92\u65A5</div></div>';
-
   return html;
 }
 
